@@ -8,11 +8,12 @@ services:
       REDMINE_DB_USERNAME: redmine
       REDMINE_DB_PASSWORD: redmine_password
       REDMINE_DB_DATABASE: redmine_db
-    volumes:
+ volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - /workspaces/contact-form-test/config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - /workspaces/contact-form-test/config/database.yml:/usr/src/redmine/config/database.yml
+      - /workspaces/contact_form_redmine_V1/config/configuration.yml:/usr/src/redmine/config/configuration.yml
+      - /workspaces/contact_form_redmine_V1/config/database.yml:/usr/src/redmine/config/database.yml
+   
     depends_on:
       - db
 
@@ -22,8 +23,8 @@ services:
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - /workspaces/contact-form-test/config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - /workspaces/contact-form-test/config/database.yml:/usr/src/redmine/config/database.yml
+      - /workspaces/contact_form_redmine_V1/config/configuration.yml:/usr/src/redmine/config/configuration.yml
+      - /workspaces/contact_form_redmine_V1/config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
       - redmine
       - db
