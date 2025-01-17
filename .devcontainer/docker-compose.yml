@@ -2,7 +2,7 @@ services:
   redmine:
     image: redmine:5
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
       REDMINE_DB_POSTGRES: db
       REDMINE_DB_USERNAME: redmine
@@ -11,18 +11,17 @@ services:
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - ./config/database.yml:/usr/src/redmine/config/database.yml
+      - ../config/configuration.yml:/usr/src/redmine/config/configuration.yml
+      - ../config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
       - db
 
   email-receiver:
-    image: redmine:5
-    entrypoint: ["/bin/bash", "-c"]
-    command: |
+    image: redmine:5-alpine
+    command: bash -c "
       echo 'Starting email receiver service...' &&
       while true; do
-        echo "[$$(date)] Checking for new emails..." &&
+        echo '[$(date)] Checking for new emails...' &&
         rake redmine:email:receive_imap RAILS_ENV=production \
           host=imap.gmail.com \
           username=testgabriel44@gmail.com \
@@ -33,11 +32,11 @@ services:
           project=support \
           tracker=Support \
           verbose=1 2>&1 &&
-        echo "[$$(date)] Email check completed" ||
-        echo "[$$(date)] Email check failed" &&
+        echo '[$(date)] Email check completed' ||
+        echo '[$(date)] Email check failed' &&
         echo 'Waiting 60 seconds before next check...' &&
         sleep 60
-      done
+      done"
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
