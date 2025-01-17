@@ -1,7 +1,6 @@
 services:
   redmine:
     image: redmine:5-alpine
-    user: "vscode:vscode"
     ports:
       - "3000:3000"
     environment:
@@ -19,7 +18,6 @@ services:
 
   email-receiver:
     image: redmine:5-alpine
-    user: "vscode:vscode"
     command: bash -c "while true; do rake redmine:email:receive_imap RAILS_ENV=production host=imap.gmail.com username=testgabriel44@gmail.com password='yfwy ykxq bwcs dtlu' port=993 ssl=true allow_override=project,priority project=support tracker=Support; sleep 60; done"
     volumes:
       - redmine-files:/usr/src/redmine/files
