@@ -20,7 +20,10 @@
     "features": {
         "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
-    "postAttachCommand": "cd /usr/src/redmine && bundle exec rake redmine:email:receive_imap RAILS_ENV=production host=imap.gmail.com username=testgabriel44@gmail.com password='yfwy ykxq bwcs dtlu' port=993 ssl=true allow_override=project,priority project=support tracker=Support verbose=1"
+    "postStartCommand": "cd /workspaces/contact_form_redmine_V1/.devcontainer && docker-compose up -d",
+    "postAttachCommand": {
+        "server": "cd /workspaces/contact_form_redmine_V1/.devcontainer && docker-compose logs -f"
+    }
 }
 
 
