@@ -1,1 +1,1 @@
-# contact_form_redmine_V1
+# contact-form-test

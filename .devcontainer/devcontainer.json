@@ -1,0 +1,28 @@
+{
+    "name": "Redmine Development Environment",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "redmine",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [3000],
+    "portsAttributes": {
+        "3000": {
+            "label": "Redmine Web",
+            "onAutoForward": "notify"
+        }
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+    },
+    "postCreateCommand": "docker-compose up -d",
+    "postStartCommand": "docker-compose up -d",
+    "postAttachCommand": {
+        "server": "docker-compose logs -f"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.vscode-docker"
+            ]
+        }
+    }
+}
