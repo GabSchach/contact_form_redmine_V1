@@ -3,9 +3,9 @@
     "dockerComposeFile": "docker-compose.yml",
     "service": "redmine",
     "workspaceFolder": "/workspaces/contact_form_redmine_V1",
-    "forwardPorts": [3000],
+    "forwardPorts": [3001],  // Changed to 3001
     "portsAttributes": {
-        "3000": {
+        "3001": {            // Changed to 3001
             "label": "Redmine Web",
             "onAutoForward": "notify"
         }
