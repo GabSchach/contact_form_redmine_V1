@@ -11,22 +11,53 @@ services:
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - /workspaces/contact_form_redmine_V1/.devcontainer/config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - /workspaces/contact_form_redmine_V1/.devcontainer/config/database.yml:/usr/src/redmine/config/database.yml
+      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
+      - ./config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   email-receiver:
     image: redmine:5-alpine
-    command: sh -c "cd /usr/src/redmine && while true; do bundle exec rake redmine:email:receive_imap RAILS_ENV=production host=imap.gmail.com username=testgabriel44@gmail.com password='yfwy ykxq bwcs dtlu' port=993 ssl=true allow_override=project,priority project=support tracker=Support; sleep 60; done"
+    command: sh -c "
+      until curl -s http://redmine:3000 > /dev/null; do
+        echo 'Waiting for Redmine to be ready...'
+        sleep 5
+      done &&
+      cd /usr/src/redmine &&
+      echo 'Starting email receiver service...' &&
+      while true; do
+        echo '[`date`] Checking for new emails...' &&
+        bundle exec rake redmine:email:receive_imap RAILS_ENV=production \
+          host=imap.gmail.com \
+          username=testgabriel44@gmail.com \
+          password='yfwy ykxq bwcs dtlu' \
+          port=993 \
+          ssl=true \
+          allow_override=project,priority \
+          project=support \
+          tracker=Support \
+          verbose=1 2>&1 &&
+        echo '[`date`] Email check completed' ||
+        echo '[`date`] Email check failed' &&
+        sleep 60
+      done"
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - /workspaces/contact_form_redmine_V1/.devcontainer/config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - /workspaces/contact_form_redmine_V1/.devcontainer/config/database.yml:/usr/src/redmine/config/database.yml
+      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
+      - ./config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
-      - redmine
-      - db
+      redmine:
+        condition: service_healthy
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:13
@@ -36,6 +67,12 @@ services:
       POSTGRES_DB: redmine_db
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redmine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   redmine-files:
