@@ -2,7 +2,7 @@
     "name": "Redmine Development Environment",
     "dockerComposeFile": "docker-compose.yml",
     "service": "redmine",
-    "workspaceFolder": "/workspaces/contact_form_redmine_V1",
+    "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
     "forwardPorts": [3000],
     "portsAttributes": {
         "3000": {
@@ -13,13 +13,13 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-azuretools.vscode-docker"
+                "ms-azuretools.vscode-docker",
+                "ms-azuretools.vscode-docker-compose"
             ]
         }
     },
-    "postCreateCommand": "apt-get update && apt-get install -y curl && curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && apt-get install -y docker-compose && docker-compose up -d",
     "postStartCommand": "docker-compose up -d",
-    "postAttachCommand": {
-        "server": "docker-compose logs -f"
+    "features": {
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
     }
 }
