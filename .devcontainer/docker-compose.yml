@@ -2,7 +2,7 @@ services:
   redmine:
     image: redmine:5
     ports:
-      - "3000:3000"
+      - "3001:3000"  # Changed to port 3001 to avoid conflict
     environment:
       REDMINE_DB_POSTGRES: db
       REDMINE_DB_USERNAME: redmine
@@ -24,8 +24,8 @@ services:
       start_period: 40s
 
   email-receiver:
-    image: redmine:5-alpine
-    command: sh -c "
+    image: redmine:5
+    command: bash -c "
       until curl -s http://redmine:3000 > /dev/null; do
         echo 'Waiting for Redmine to be ready...'
         sleep 5
