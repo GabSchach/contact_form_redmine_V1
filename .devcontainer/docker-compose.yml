@@ -1,6 +1,6 @@
 services:
   redmine:
-    image: redmine:5
+    image: redmine:5-alpine
     ports:
       - "3000:3000"
     environment:
@@ -15,6 +15,8 @@ services:
       - ./config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
       - db
+    restart: unless-stopped
+    mem_limit: 512m
     logging:
       driver: "json-file"
       options:
@@ -22,7 +24,7 @@ services:
         max-file: "3"
 
   email-receiver:
-    image: redmine:5
+    image: redmine:5-alpine
     entrypoint: ["/bin/sh", "-c"]
     command: |
       while true; do
@@ -35,8 +37,8 @@ services:
           ssl=true \
           allow_override=project,priority \
           project=support \
-          tracker=Support
-        echo "[$(date)] Email check completed. Waiting 60 seconds..."
+          tracker=Support || echo "Email check failed"
+        echo "[$(date)] Waiting 60 seconds before next check..."
         sleep 60
       done
     volumes:
@@ -47,6 +49,8 @@ services:
     depends_on:
       - redmine
       - db
+    restart: unless-stopped
+    mem_limit: 256m
     logging:
       driver: "json-file"
       options:
@@ -54,13 +58,15 @@ services:
         max-file: "3"
 
   db:
-    image: postgres:13
+    image: postgres:13-alpine
     environment:
       POSTGRES_PASSWORD: redmine_password
       POSTGRES_USER: redmine
       POSTGRES_DB: redmine_db
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    mem_limit: 256m
     logging:
       driver: "json-file"
       options:
