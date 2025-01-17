@@ -16,5 +16,6 @@
                 "ms-azuretools.vscode-docker"
             ]
         }
-    }
+    },
+    "postCreateCommand": "docker-compose up -d"
 }
