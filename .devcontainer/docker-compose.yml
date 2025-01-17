@@ -11,8 +11,8 @@ services:
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - ./config/database.yml:/usr/src/redmine/config/database.yml
+      - ../config/configuration.yml:/usr/src/redmine/config/configuration.yml
+      - ../config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
       - db
 
