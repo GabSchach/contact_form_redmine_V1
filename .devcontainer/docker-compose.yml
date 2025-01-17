@@ -2,77 +2,28 @@ services:
   redmine:
     image: redmine:5
     ports:
-      - "4000:3000"
+      - "9090:3000"
     environment:
       REDMINE_DB_POSTGRES: db
       REDMINE_DB_USERNAME: redmine
       REDMINE_DB_PASSWORD: redmine_password
-      REDMINE_DB_DATABASE: redmine_db
+      REDMINE_DB_DATABASE: redmine
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
       - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
       - ./config/database.yml:/usr/src/redmine/config/database.yml
     depends_on:
-      db:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  email-receiver:
-    image: redmine:5
-    command: bash -c "
-      until curl -s http://redmine:3000 > /dev/null; do
-        echo 'Waiting for Redmine to be ready...'
-        sleep 5
-      done &&
-      cd /usr/src/redmine &&
-      echo 'Starting email receiver service...' &&
-      while true; do
-        echo '[`date`] Checking for new emails...' &&
-        bundle exec rake redmine:email:receive_imap RAILS_ENV=production \
-          host=imap.gmail.com \
-          username=testgabriel44@gmail.com \
-          password='yfwy ykxq bwcs dtlu' \
-          port=993 \
-          ssl=true \
-          allow_override=project,priority \
-          project=support \
-          tracker=Support \
-          verbose=1 2>&1 &&
-        echo '[`date`] Email check completed' ||
-        echo '[`date`] Email check failed' &&
-        sleep 60
-      done"
-    volumes:
-      - redmine-files:/usr/src/redmine/files
-      - redmine-plugins:/usr/src/redmine/plugins
-      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - ./config/database.yml:/usr/src/redmine/config/database.yml
-    depends_on:
-      redmine:
-        condition: service_healthy
-      db:
-        condition: service_healthy
+      - db
 
   db:
     image: postgres:13
     environment:
       POSTGRES_PASSWORD: redmine_password
       POSTGRES_USER: redmine
-      POSTGRES_DB: redmine_db
+      POSTGRES_DB: redmine
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U redmine"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
 
 volumes:
   redmine-files:
