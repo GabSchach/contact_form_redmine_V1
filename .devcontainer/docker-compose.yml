@@ -41,3 +41,4 @@ volumes:
   redmine-files:
   redmine-plugins:
   postgres-data:
+
