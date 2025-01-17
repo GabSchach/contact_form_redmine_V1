@@ -22,3 +22,5 @@
     },
     "postAttachCommand": "cd /usr/src/redmine && bundle exec rake redmine:email:receive_imap RAILS_ENV=production host=imap.gmail.com username=testgabriel44@gmail.com password='yfwy ykxq bwcs dtlu' port=993 ssl=true allow_override=project,priority project=support tracker=Support verbose=1"
 }
+
+
