@@ -10,14 +10,6 @@
             "onAutoForward": "notify"
         }
     },
-    "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:1": {}
-    },
-    "postCreateCommand": "docker-compose up -d",
-    "postStartCommand": "docker-compose up -d",
-    "postAttachCommand": {
-        "server": "docker-compose logs -f"
-    },
     "customizations": {
         "vscode": {
             "extensions": [
