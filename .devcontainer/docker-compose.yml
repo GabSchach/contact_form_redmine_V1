@@ -8,25 +8,26 @@ services:
       REDMINE_DB_USERNAME: redmine
       REDMINE_DB_PASSWORD: redmine_password
       REDMINE_DB_DATABASE: redmine_db
+      RAILS_ENV: production
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - ./config/database.yml:/usr/src/redmine/config/database.yml
+      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml:ro
+      - ./config/database.yml:/usr/src/redmine/config/database.yml:ro
     depends_on:
       - db
     restart: unless-stopped
-    mem_limit: 512m
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   email-receiver:
     image: redmine:5-alpine
     entrypoint: ["/bin/sh", "-c"]
     command: |
+      apk add --no-cache tzdata &&
       while true; do
         echo "[$(date)] Starting email check..."
         rake redmine:email:receive_imap RAILS_ENV=production \
@@ -37,25 +38,19 @@ services:
           ssl=true \
           allow_override=project,priority \
           project=support \
-          tracker=Support || echo "Email check failed"
+          tracker=Support 2>&1 || echo "Email check failed"
         echo "[$(date)] Waiting 60 seconds before next check..."
         sleep 60
       done
     volumes:
       - redmine-files:/usr/src/redmine/files
       - redmine-plugins:/usr/src/redmine/plugins
-      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml
-      - ./config/database.yml:/usr/src/redmine/config/database.yml
+      - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml:ro
+      - ./config/database.yml:/usr/src/redmine/config/database.yml:ro
     depends_on:
-      - redmine
-      - db
+      redmine:
+        condition: service_healthy
     restart: unless-stopped
-    mem_limit: 256m
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
   db:
     image: postgres:13-alpine
@@ -66,12 +61,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
-    mem_limit: 256m
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U redmine"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   redmine-files:
