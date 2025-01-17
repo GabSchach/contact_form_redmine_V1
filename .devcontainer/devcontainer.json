@@ -13,13 +13,16 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "ms-azuretools.vscode-docker",
-                "ms-azuretools.vscode-docker-compose"
+                "ms-azuretools.vscode-docker"
             ]
         }
     },
     "postStartCommand": "docker-compose up -d",
     "features": {
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-    }
+        "ghcr.io/devcontainers/features/docker-in-docker:2": {
+            "version": "latest",
+            "moby": true
+        }
+    },
+    "remoteUser": "root"
 }
