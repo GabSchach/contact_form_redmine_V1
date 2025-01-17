@@ -17,11 +17,11 @@
             ]
         }
     },
-    "postCreateCommand": "apt-get update && apt-get install -y curl && curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh && apt-get install -y docker-compose && service docker start && ln -sf .devcontainer/docker-compose.yml docker-compose.yml && docker-compose up -d",
-    "postStartCommand": "service docker start && docker-compose up -d",
-    "postAttachCommand": {
-        "server": "docker-compose logs -f"
+    "features": {
+        "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
     },
-    "remoteUser": "root",
-    "init": true
+    "postStartCommand": "cd /workspaces/contact_form_redmine_V1/.devcontainer && docker-compose up -d",
+    "postAttachCommand": {
+        "server": "cd /workspaces/contact_form_redmine_V1/.devcontainer && docker-compose logs -f"
+    }
 }
