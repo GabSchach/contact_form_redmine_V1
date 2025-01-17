@@ -2,7 +2,7 @@
     "name": "Redmine Development Environment",
     "dockerComposeFile": "docker-compose.yml",
     "service": "redmine",
-    "workspaceFolder": "/workspace",
+    "workspaceFolder": "/workspaces/contact_form_redmine_V1",
     "forwardPorts": [3000],
     "portsAttributes": {
         "3000": {
