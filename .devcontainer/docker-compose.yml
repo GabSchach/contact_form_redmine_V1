@@ -1,4 +1,14 @@
 services:
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_PASSWORD: redmine_password
+      POSTGRES_USER: redmine
+      POSTGRES_DB: redmine_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   redmine:
     image: redmine:5-alpine
     ports:
@@ -17,17 +27,25 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+    command: >
+      sh -c "
+        while ! nc -z db 5432; do
+          echo 'Waiting for PostgreSQL to start...'
+          sleep 2
+        done
+        echo 'PostgreSQL is up - starting Redmine'
+        bundle exec rails server -b 0.0.0.0
+      "
 
   email-receiver:
     image: redmine:5-alpine
     entrypoint: ["/bin/sh", "-c"]
     command: |
-      apk add --no-cache tzdata &&
+      apk add --no-cache netcat-openbsd &&
+      while ! nc -z redmine 3000; do
+        echo "Waiting for Redmine to be ready..."
+        sleep 5
+      done
       while true; do
         echo "[$(date)] Starting email check..."
         rake redmine:email:receive_imap RAILS_ENV=production \
@@ -48,24 +66,8 @@ services:
       - ./config/configuration.yml:/usr/src/redmine/config/configuration.yml:ro
       - ./config/database.yml:/usr/src/redmine/config/database.yml:ro
     depends_on:
-      redmine:
-        condition: service_healthy
+      - redmine
     restart: unless-stopped
-
-  db:
-    image: postgres:13-alpine
-    environment:
-      POSTGRES_PASSWORD: redmine_password
-      POSTGRES_USER: redmine
-      POSTGRES_DB: redmine_db
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U redmine"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   redmine-files:
